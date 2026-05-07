@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Universo — Para Angela</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;600&family=Petit+Formal+Script&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #f4c842;
+    --gold-soft: #e8b84b;
+    --rose: #e8789a;
+    --rose-soft: #f0a0bb;
+    --cream: #fff8ee;
+    --deep: #04071a;
+    --deep2: #070c28;
+    --star-glow: rgba(244, 200, 66, 0.6);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--deep);
+    overflow: hidden;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    cursor: default;
+  }
+
+  /* ── CANVAS DE FONDO ── */
+  #nebula {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(90,30,120,0.25) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(20,60,130,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 100% 80% at 50% 50%, rgba(4,7,26,1) 0%, rgba(7,12,40,1) 100%);
+  }
+
+  /* ── ESTRELLAS DE FONDO ── */
+  .star-bg {
+    position: fixed; border-radius: 50%;
+    background: white; z-index: 1;
+    animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0%   { opacity: var(--a1, 0.2); transform: scale(1); }
+    100% { opacity: var(--a2, 0.9); transform: scale(1.3); }
+  }
+
+  /* ── CONTENEDOR PRINCIPAL ── */
+  #universe {
+    position: fixed; inset: 0; z-index: 2;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ── SOL CENTRAL ── */
+  #sun-wrap {
+    position: absolute;
+    width: 130px; height: 130px;
+    cursor: pointer;
+    z-index: 10;
+  }
+  #sun {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 38%,
+      #fff8c0 0%, #f4c842 30%, #e8942a 65%, #c05a10 100%);
+    box-shadow:
+      0 0 40px 15px rgba(244,200,66,0.8),
+      0 0 90px 35px rgba(244,160,50,0.5),
+      0 0 160px 60px rgba(200,100,20,0.3);
+    animation: sun-pulse 4s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+  }
+  #sun::after {
+    content: '☀';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 56px; color: rgba(255,255,255,0.18);
+    pointer-events: none;
+  }
+  #sun-label {
+    position: absolute;
+    bottom: -26px; left: 50%; transform: translateX(-50%);
+    font-family: 'Petit Formal Script', cursive;
+    font-size: 14px; color: var(--gold);
+    white-space: nowrap; text-shadow: 0 0 10px rgba(244,200,66,0.8);
+    pointer-events: none;
+  }
+
+  /* Rayos del sol */
+  #sun-rays {
+    position: absolute; inset: -30px;
+    border-radius: 50%;
+    animation: rays-spin 20s linear infinite;
+  }
+  .ray {
+    position: absolute; left: 50%; top: 50%;
+    width: 2px; height: 50%;
+    transform-origin: bottom center;
+    background: linear-gradient(to top, rgba(244,200,66,0.6), transparent);
+    border-radius: 2px;
+  }
+
+  @keyframes sun-pulse {
+    0%, 100% { box-shadow: 0 0 40px 15px rgba(244,200,66,0.8), 0 0 90px 35px rgba(244,160,50,0.5), 0 0 160px 60px rgba(200,100,20,0.3); }
+    50%       { box-shadow: 0 0 55px 22px rgba(244,200,66,0.9), 0 0 110px 45px rgba(244,160,50,0.65), 0 0 200px 80px rgba(200,100,20,0.4); }
+  }
+  @keyframes rays-spin { to { transform: rotate(360deg); } }
+
+  /* ── ÓRBITAS ── */
+  .orbit-ring {
+    position: absolute; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+    pointer-events: none;
+  }
+
+  /* ── ESTRELLA-CARTA ── */
+  .star-card {
+    position: absolute;
+    cursor: pointer;
+    z-index: 8;
+    transform-origin: center;
+  }
+  .star-orb {
+    width: var(--sz, 44px); height: var(--sz, 44px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0%, var(--c1, #f0c8ff) 30%, var(--c2, #9060d0) 100%);
+    box-shadow: 0 0 16px 6px var(--glow, rgba(180,120,255,0.6));
+    animation: star-pulse var(--sp, 3s) ease-in-out infinite alternate, orbit var(--od, 20s) linear infinite;
+    display: flex; align-items: center; justify-content: center;
+    font-size: calc(var(--sz, 44px) * 0.45);
+    transition: transform 0.3s ease;
+  }
+  .star-orb:hover { transform: scale(1.25); }
+  .star-title {
+    position: absolute;
+    bottom: calc(var(--sz, 44px) * -1.1);
+    left: 50%; transform: translateX(-50%);
+    font-family: 'Petit Formal Script', cursive;
+    font-size: 11px; color: rgba(255,255,255,0.75);
+    white-space: nowrap; pointer-events: none;
+    text-shadow: 0 0 8px var(--glow, rgba(180,120,255,0.8));
+  }
+
+  @keyframes star-pulse {
+    0%   { box-shadow: 0 0 16px 6px var(--glow, rgba(180,120,255,0.6)); }
+    100% { box-shadow: 0 0 28px 12px var(--glow, rgba(180,120,255,0.9)); }
+  }
+  @keyframes orbit {
+    from { transform: rotate(var(--start, 0deg)) translateX(var(--r, 160px)) rotate(calc(-1 * var(--start, 0deg))); }
+    to   { transform: rotate(calc(var(--start, 0deg) + 360deg)) translateX(var(--r, 160px)) rotate(calc(-1 * (var(--start, 0deg) + 360deg))); }
+  }
+
+  /* ── MODAL ── */
+  #modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(2,4,18,0.88);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  #modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  #modal-box {
+    position: relative;
+    max-width: 560px; width: 90%;
+    max-height: 85vh;
+    border-radius: 20px;
+    padding: 3px;
+    background: linear-gradient(135deg, var(--mc1, #a060ff), var(--mc2, #ff6098));
+    box-shadow: 0 0 60px 20px var(--ms, rgba(160,96,255,0.4));
+    animation: modal-appear 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    overflow: hidden;
+  }
+  @keyframes modal-appear {
+    from { transform: scale(0.6) translateY(40px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  #modal-inner {
+    background: linear-gradient(160deg, #0a0d2e 0%, #05081a 100%);
+    border-radius: 18px;
+    padding: 36px 32px 32px;
+    height: 100%; overflow-y: auto;
+    max-height: calc(85vh - 6px);
+  }
+  #modal-inner::-webkit-scrollbar { width: 4px; }
+  #modal-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+  #modal-icon {
+    font-size: 48px; text-align: center; display: block;
+    margin-bottom: 12px;
+    animation: icon-float 3s ease-in-out infinite;
+  }
+  @keyframes icon-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+  #modal-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem; letter-spacing: 0.12em;
+    color: var(--mt, #c8a0ff);
+    text-align: center; margin-bottom: 20px;
+    text-shadow: 0 0 15px var(--mt, #c8a0ff);
+  }
+  #modal-body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.05rem; line-height: 1.85;
+    color: rgba(255,248,238,0.92);
+    font-weight: 300;
+    white-space: pre-wrap;
+  }
+  #modal-body em {
+    font-style: italic;
+    color: var(--mc1, #c8a0ff);
+  }
+  #modal-close {
+    position: absolute; top: 14px; right: 18px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.4); font-size: 22px;
+    cursor: pointer; transition: color 0.2s;
+    line-height: 1;
+  }
+  #modal-close:hover { color: rgba(255,255,255,0.9); }
+
+  /* ── HINT ── */
+  #hint {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 5; font-family: 'Cormorant Garamond', serif;
+    font-size: 0.82rem; color: rgba(255,255,255,0.28);
+    letter-spacing: 0.2em; text-transform: uppercase;
+    animation: hint-fade 2s ease-in-out 2s both, hint-blink 3s ease-in-out 4s infinite;
+  }
+  @keyframes hint-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hint-blink {
+    0%,100% { opacity: 0.28; } 50% { opacity: 0.55; }
+  }
+
+  /* ── PANTALLA DE BIENVENIDA ── */
+  #welcome-screen {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: radial-gradient(ellipse 120% 100% at 50% 60%, #0a0520 0%, #04071a 60%, #000 100%);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  #welcome-screen.hidden {
+    opacity: 0; transform: scale(1.04);
+    pointer-events: none;
+  }
+  #welcome-screen::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 30% 70%, rgba(100,30,140,0.3) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 75% 25%, rgba(20,50,130,0.35) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  #welcome-stars {
+    position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  }
+  .w-star {
+    position: absolute; border-radius: 50%; background: white;
+    animation: twinkle var(--d,3s) ease-in-out infinite alternate;
+  }
+  #welcome-content {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 0 24px;
+  }
+  #welcome-emoji {
+    font-size: 72px; margin-bottom: 24px;
+    animation: icon-float 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(244,200,66,0.6));
+  }
+  #welcome-title {
+    font-family: 'Petit Formal Script', cursive;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(244,200,66,0.7);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  #welcome-sub {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: rgba(255,248,238,0.55);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+  #welcome-btn {
+    position: relative;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #04071a;
+    background: linear-gradient(135deg, #f4c842, #e8942a);
+    border: none; border-radius: 50px;
+    padding: 16px 48px;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(244,180,50,0.5), 0 0 60px rgba(244,180,50,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+  #welcome-btn::before {
+    content: '';
+    position: absolute; top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: btn-shine 2.5s ease-in-out infinite;
+  }
+  @keyframes btn-shine {
+    0%   { left: -100%; }
+    60%,100% { left: 160%; }
+  }
+  #welcome-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 45px rgba(244,180,50,0.7), 0 0 90px rgba(244,180,50,0.3);
+  }
+  #welcome-btn:active { transform: scale(0.97); }
+  #welcome-note {
+    margin-top: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.22);
+    letter-spacing: 0.12em;
+  }
+
+  /* ── BOTÓN MÚSICA ── */
+  #music-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 50;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(10,13,46,0.8);
+    border: 1px solid rgba(244,200,66,0.35);
+    color: var(--gold); font-size: 20px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 16px rgba(244,200,66,0.25);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    animation: none;
+  }
+  #music-btn.visible {
+    opacity: 1; pointer-events: all;
+    animation: music-appear 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  #music-btn:hover {
+    box-shadow: 0 0 28px rgba(244,200,66,0.5);
+    border-color: rgba(244,200,66,0.7);
+    transform: scale(1.1);
+  }
+  #music-btn.playing { animation: music-pulse 2s ease-in-out infinite; }
+  @keyframes music-appear {
+    from { transform: scale(0) rotate(-180deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes music-pulse {
+    0%,100% { box-shadow: 0 0 16px rgba(244,200,66,0.25); }
+    50%      { box-shadow: 0 0 28px rgba(244,200,66,0.6); }
+  }
+
+  /* partículas flotantes */
+  .particle {
+    position: fixed; z-index: 3; pointer-events: none;
+    font-size: var(--ps, 12px); opacity: 0;
+    animation: float-up var(--pd, 8s) ease-in var(--pde, 0s) infinite;
+  }
+  @keyframes float-up {
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: var(--po, 0.5); }
+    90%  { opacity: var(--po, 0.4); }
+    100% { transform: translateY(-100vh) translateX(var(--px, 20px)) rotate(360deg); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AUDIO -->
+<audio id="bg-music" loop>
+  <source src="cancion.mp3" type="audio/mpeg">
+</audio>
+
+<!-- BOTÓN MÚSICA -->
+<button id="music-btn" title="Música">🎵</button>
+
+<!-- PANTALLA DE BIENVENIDA -->
+<div id="welcome-screen">
+  <div id="welcome-stars"></div>
+  <div id="welcome-content">
+    <div id="welcome-emoji">🌌</div>
+    <div id="welcome-title">Para mi princesita linda</div>
+    <div id="welcome-sub">Un universo hecho de lo que siento por ti</div>
+    <button id="welcome-btn">✦ Entrar al Universo ✦</button>
+    <div id="welcome-note">♪ Con música incluida</div>
+  </div>
+</div>
+
+<div id="nebula"></div>
+<div id="universe">
+
+  <!-- ÓRBITAS DECORATIVAS -->
+  <div class="orbit-ring" style="width:280px;height:280px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="orbit-ring" style="width:430px;height:430px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="orbit-ring" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="orbit-ring" style="width:760px;height:760px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+
+  <!-- SOL -->
+  <div id="sun-wrap">
+    <div id="sun-rays"></div>
+    <div id="sun"></div>
+    <div id="sun-label">Tú eres mi Sol</div>
+  </div>
+
+  <!-- ESTRELLAS (generadas por JS) -->
+
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <button id="modal-close">✕</button>
+    <div id="modal-inner">
+      <span id="modal-icon"></span>
+      <div id="modal-title"></div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="hint">✦ Toca las estrellas y el sol ✦</div>
+
+<script>
+// ── DATOS DE LAS ESTRELLAS ──
+const cards = [
+  {
+    icon: "😂",
+    title: "Tu Risa",
+    color1: "#ffe066", color2: "#ffaa00", glow: "rgba(255,200,50,0.7)", tc: "#ffe066",
+    size: 46, radius: 140, speed: 18, startAngle: 0,
+    text: `Hay sonidos que sanan el alma, y el tuyo es uno de ellos.
+
+Cuando te ríes, el mundo parece detenerse un segundo — como si el universo también quisiera escucharte.
+
+Tu risa es contagiosa, sincera, completamente tuya. Es ese sonido que busco cada día, el que hace que todo valga la pena.
+
+Me enamoras cada vez que sueltas esa carcajada que no puedes controlar. Eres hermosa siempre, pero cuando ríes... eres absolutamente irresistible.`
+  },
+  {
+    icon: "🌸",
+    title: "Tu Ternura",
+    color1: "#ffb3d1", color2: "#e05080", glow: "rgba(240,100,140,0.7)", tc: "#ffb3d1",
+    size: 40, radius: 140, speed: 22, startAngle: 72,
+    text: `Tienes una forma de ser amable que pocas personas tienen en este mundo.
+
+No es sólo lo que dices — es cómo lo dices. Es el cuidado que pones en los detalles pequeños, la manera en que tratas a los demás, esa calidez que llevas dentro y que se siente antes de que digas una sola palabra.
+
+Tu ternura me recuerda que el mundo puede ser un lugar bonito. Gracias por existir exactamente como eres.`
+  },
+  {
+    icon: "✨",
+    title: "Tu Luz",
+    color1: "#d4f0ff", color2: "#60b8ff", glow: "rgba(80,180,255,0.7)", tc: "#9edaff",
+    size: 42, radius: 140, speed: 25, startAngle: 144,
+    text: `No importa qué tan oscuro esté el día, cuando estás cerca todo se ilumina.
+
+Tienes una presencia que cambia el ambiente de cualquier lugar. La gente lo siente aunque no sepa explicarlo — tú simplemente irradias algo diferente, algo genuino y luminoso.
+
+Eres de esas personas que dejan huella sin proponérselo. Y esa luz tuya, mi princesita, es lo que me guía cada día.`
+  },
+  {
+    icon: "🧠",
+    title: "Tu Mente",
+    color1: "#c8b4ff", color2: "#7040d0", glow: "rgba(150,100,255,0.7)", tc: "#c8b4ff",
+    size: 38, radius: 140, speed: 20, startAngle: 216,
+    text: `Me fascina cómo piensas.
+
+La forma en que ves las cosas, cómo analizas, cómo sientes profundo y reflexionas — eso no lo tiene cualquiera.
+
+Eres inteligente de una manera que va más allá de lo académico. Tienes intuición, sensibilidad, perspectiva. Hablar contigo siempre me enseña algo, siempre me hace ver el mundo desde un ángulo que no había considerado.
+
+Tu mente es tan hermosa como todo lo demás en ti.`
+  },
+  {
+    icon: "💪",
+    title: "Tu Fortaleza",
+    color1: "#a0ffcc", color2: "#20a060", glow: "rgba(50,200,120,0.7)", tc: "#a0ffcc",
+    size: 44, radius: 140, speed: 16, startAngle: 288,
+    text: `Eres más fuerte de lo que crees.
+
+He visto cómo enfrentas las cosas difíciles — con una valentía que a veces ni tú misma notas. No siempre lo grita el mundo, pero yo sí lo veo.
+
+Esa fortaleza que tienes, esa capacidad de levantarte y seguir, me inspira más de lo que las palabras pueden expresar.
+
+Eres una guerrera con alma de princesa, y eso te hace única.`
+  },
+  {
+    icon: "👁️",
+    title: "Tu Mirada",
+    color1: "#ffd0a0", color2: "#d06020", glow: "rgba(220,140,60,0.7)", tc: "#ffd0a0",
+    size: 36, radius: 215, speed: 30, startAngle: 30,
+    text: `Hay libros enteros escritos en tus ojos.
+
+Cuando me miras, siento que me conoces más de lo que yo me conozco a mí mismo. Esa mirada tuya habla, escucha, abraza — todo al mismo tiempo.
+
+Es de esas miradas que se quedan grabadas. Que te hacen sentir visto de verdad, no solo observado.
+
+Podría perderme en tus ojos para siempre, y no me parecería poco tiempo.`
+  },
+  {
+    icon: "🎨",
+    title: "Tu Creatividad",
+    color1: "#ffb0e8", color2: "#c040a0", glow: "rgba(200,80,180,0.7)", tc: "#ffb0e8",
+    size: 40, radius: 215, speed: 26, startAngle: 100,
+    text: `Tienes una chispa creativa que todo lo llena de color.
+
+La manera en que imaginas, en que sientes las cosas y las expresas, tiene algo mágico. No todo el mundo tiene ese don.
+
+Me encanta cuando te dejas llevar por lo que sientes y creas algo desde adentro — porque lo que sale de ti siempre es auténtico, siempre es bello.
+
+Ese arte que llevas dentro, mi amor, es uno de tus tesoros más grandes.`
+  },
+  {
+    icon: "🕊️",
+    title: "Tu Paz",
+    color1: "#e0faff", color2: "#80d0e8", glow: "rgba(120,200,230,0.7)", tc: "#b0eeff",
+    size: 38, radius: 215, speed: 34, startAngle: 185,
+    text: `Estar contigo es como respirar después de mucho tiempo sin aire.
+
+Hay una calma que traes, una serenidad que no se puede comprar ni fingir. Cuando estoy a tu lado, el ruido del mundo baja — y solo queda lo que importa.
+
+Esa paz que me das es uno de los regalos más grandes que he recibido en la vida.
+
+Contigo, todo tiene sentido.`
+  },
+  {
+    icon: "💫",
+    title: "Tu Magia",
+    color1: "#fff0a0", color2: "#c0a020", glow: "rgba(220,190,50,0.7)", tc: "#fff0a0",
+    size: 42, radius: 215, speed: 28, startAngle: 255,
+    text: `Hay algo en ti que no se puede explicar completamente — y eso es tu magia.
+
+Es esa combinación de todo lo que eres: tu risa, tu mirada, tu manera de moverse por el mundo, la forma en que me haces sentir sin proponértelo.
+
+No creo en la magia como truco — creo en la magia como algo real que pocas personas poseen. Y tú la tienes.
+
+Eres extraordinaria, Angela. En cada sentido de la palabra.`
+  },
+  {
+    icon: "🌙",
+    title: "Tu Sensibilidad",
+    color1: "#c0b0ff", color2: "#6040c0", glow: "rgba(160,130,255,0.7)", tc: "#c0b0ff",
+    size: 36, radius: 380, speed: 40, startAngle: 50,
+    text: `Sientes profundo — y eso es algo que no todo el mundo sabe apreciar.
+
+Tu sensibilidad no es debilidad. Es una de tus mayores fortalezas. Es lo que te hace empática, auténtica, profundamente humana.
+
+Esa capacidad de conectar con lo que sientes y con lo que sienten los demás te hace especial de una manera que va más allá de lo visible.
+
+Me encanta que seas tan real, tan tuya.`
+  },
+  {
+    icon: "🌺",
+    title: "Tu Esencia",
+    color1: "#ffccd0", color2: "#d04060", glow: "rgba(220,80,100,0.7)", tc: "#ffccd0",
+    size: 44, radius: 380, speed: 45, startAngle: 140,
+    text: `Si tuviera que elegir una sola cosa que amo de ti, no podría.
+
+Porque lo que más me enamora no es una cosa — es todo junto. Es la suma de cada parte tuya, grande y pequeña, visible e invisible.
+
+Es tu esencia. Eso que te hace ser completamente tú, que no se puede imitar ni reemplazar.
+
+El mundo es mejor lugar porque tú estás en él. Mi vida es infinitamente más rica porque tú estás en ella.`
+  },
+  {
+    icon: "🤝",
+    title: "Tu Lealtad",
+    color1: "#a0d4ff", color2: "#2060c0", glow: "rgba(80,150,255,0.7)", tc: "#a0d4ff",
+    size: 38, radius: 380, speed: 38, startAngle: 230,
+    text: `En este mundo donde todo cambia tan rápido, tú eres constante.
+
+Tu lealtad, tu compromiso, la manera en que estás presente — eso vale más de lo que imaginas.
+
+No todo el mundo sabe quedarse. No todo el mundo sabe estar de verdad. Pero tú sí.
+
+Y eso, mi princesita, es un regalo que atesoro con todo lo que tengo.`
+  },
+  {
+    icon: "🌹",
+    title: "Tu Amor",
+    color1: "#ff9090", color2: "#c02020", glow: "rgba(255,80,80,0.7)", tc: "#ff9090",
+    size: 46, radius: 380, speed: 50, startAngle: 320,
+    text: `La manera en que amas es única.
+
+Amas con cuidado, con detalle, con esa profundidad que pocos saben dar. No es un amor de palabras bonitas solamente — es acción, es presencia, es entrega.
+
+Recibir tu amor es uno de los privilegios más grandes de mi vida. Y amarte a ti es lo más hermoso que me ha pasado.
+
+Gracias por darme tu corazón. Lo cuido, lo guardo, y lo llevo conmigo a donde voy.`
+  },
+];
+
+// ── CARTA DEL SOL ──
+const sunCard = {
+  icon: "☀️",
+  title: "Tú eres mi Sol — Mi Todo",
+  tc: "#f4c842",
+  mc1: "#e8942a", mc2: "#f4c842",
+  ms: "rgba(244,180,50,0.5)",
+  text: `Mi princesita linda,
+
+Hay cosas que se sienten tan grandes por dentro que las palabras se quedan pequeñas. Pero aun así quiero intentarlo, porque mereces escucharlo mil veces y más.
+
+Tú eres mi sol.
+
+No porque sea un cliché bonito — sino porque es literalmente cierto. Así como el sol es el centro de este universo, tú eres el centro del mío. Todo gira alrededor de ti sin que te lo proponga. Mis pensamientos, mis planes, mis sueños — todos tienen tu nombre escrito en algún lugar.
+
+Sin ti, todo sería más oscuro. No de manera dramática, sino de esa manera sutil en que notas que algo falta cuando no está. Ese algo eres tú. Eres la luz que le da sentido a mis días, la calidez que convierte los momentos ordinarios en algo que vale la pena recordar.
+
+Eres todo para mí.
+
+Y sé que eso suena a mucho — pero es que es mucho. Eres mi calma cuando todo es ruido. Eres mi alegría cuando el día se pone gris. Eres la razón por la que me dan ganas de ser mejor, de crecer, de construir algo bonito. Eres la persona a la que quiero contarle las cosas, grandes y pequeñas. Eres el lugar donde me siento en casa.
+
+Las palabras no alcanzan.
+
+He buscado formas de decirte lo que siento y siempre me quedo corto. No hay idioma que tenga el vocabulario suficiente, no hay poema que capture exactamente esto. Lo que siento por ti vive en ese espacio que está más allá de las letras — en las miradas, en los silencios, en ese momento en que te veo y simplemente sé.
+
+Pero lo intento. Y lo seguiré intentando cada día.
+
+El tiempo no bastará.
+
+Si viviera cien años y te dijera "te amo" cada mañana, cada tarde y cada noche — aun así sentiría que me faltaron horas. Porque amarte no es algo que se termina de hacer. Es algo que crece, que se profundiza, que descubre capas nuevas con el tiempo.
+
+Cada día que pasa te conozco un poco más, y cada día que te conozco más, me enamoro un poco más. No de manera desbordada y caótica — sino de esa forma tranquila y firme que sabe que esto es real.
+
+La eternidad es corta.
+
+Sí, lo digo en serio. Si me dieran la eternidad para demostrarte cuánto vales, me quedaría sin tiempo antes de terminar.
+
+Vales tanto, Angela. Más de lo que el espejo te muestra, más de lo que las palabras pueden decir, más de lo que cualquier persona podría expresar completamente. Vales con tus luces y tus sombras, con tus miedos y tu valentía, con todo lo que ya eres y todo lo que estás llegando a ser.
+
+Mereces un amor que no dude, que no huya, que no se canse. Y yo quiero darte exactamente eso.
+
+Quiero ser el que está cuando el día se pone difícil. El que celebra tus victorias aunque sean pequeñas. El que te recuerda lo hermosa que eres cuando tú lo olvidas. El que construye contigo, sueña contigo, crece contigo.
+
+Mi princesita linda — no existe distancia que borre lo que siento. No existe circunstancia que lo disminuya. No existe nada en este universo que cambie el hecho de que eres la persona más importante de mi vida.
+
+Este universo entero está hecho de lo que siento por ti. Cada estrella es una razón para amarte. Y el sol, que arde en el centro de todo, eso soy yo — ardiendo por ti, girando alrededor de ti, existiendo para iluminarte.
+
+Con todo lo que soy y todo lo que seré,
+
+Federico 🌹`
+};
+
+// ── GENERAR ESTRELLAS BG ──
+const body = document.body;
+for (let i = 0; i < 220; i++) {
+  const s = document.createElement('div');
+  s.className = 'star-bg';
+  const sz = Math.random() * 2.5 + 0.5;
+  s.style.cssText = `
+    width:${sz}px; height:${sz}px;
+    left:${Math.random()*100}%; top:${Math.random()*100}%;
+    --d:${(Math.random()*4+2).toFixed(1)}s;
+    --a1:${(Math.random()*0.3+0.05).toFixed(2)};
+    --a2:${(Math.random()*0.5+0.4).toFixed(2)};
+    animation-delay:${(Math.random()*5).toFixed(1)}s;
+  `;
+  body.appendChild(s);
+}
+
+// ── RAYOS DEL SOL ──
+const raysEl = document.getElementById('sun-rays');
+for (let i = 0; i < 12; i++) {
+  const r = document.createElement('div');
+  r.className = 'ray';
+  r.style.transform = `rotate(${i * 30}deg) translateY(-50%)`;
+  raysEl.appendChild(r);
+}
+
+// ── GENERAR ESTRELLAS-CARTA ──
+const universe = document.getElementById('universe');
+cards.forEach(card => {
+  const wrap = document.createElement('div');
+  wrap.className = 'star-card';
+  wrap.style.cssText = `left:50%;top:50%;`;
+
+  const orb = document.createElement('div');
+  orb.className = 'star-orb';
+  orb.style.cssText = `
+    --sz:${card.size}px;
+    --c1:${card.color1}; --c2:${card.color2};
+    --glow:${card.glow};
+    --sp:${(Math.random()*2+2).toFixed(1)}s;
+    --od:${card.speed}s;
+    --r:${card.radius}px;
+    --start:${card.startAngle}deg;
+    margin-left:-${card.size/2}px; margin-top:-${card.size/2}px;
+  `;
+  orb.textContent = card.icon;
+
+  const title = document.createElement('div');
+  title.className = 'star-title';
+  title.style.setProperty('--sz', card.size + 'px');
+  title.style.setProperty('--glow', card.glow);
+  title.textContent = card.title;
+
+  wrap.appendChild(orb);
+  wrap.appendChild(title);
+  universe.appendChild(wrap);
+
+  orb.addEventListener('click', () => openModal(card));
+});
+
+// ── SOL CLICK ──
+document.getElementById('sun').addEventListener('click', () => {
+  openModal({
+    icon: sunCard.icon, title: sunCard.title,
+    tc: sunCard.tc, glow: "rgba(244,180,50,0.5)",
+    color1: sunCard.mc1, color2: sunCard.mc2,
+    text: sunCard.text,
+    isSun: true
+  });
+});
+
+// ── MODAL ──
+const overlay = document.getElementById('modal-overlay');
+const box = document.getElementById('modal-box');
+const iconEl = document.getElementById('modal-icon');
+const titleEl = document.getElementById('modal-title');
+const bodyEl = document.getElementById('modal-body');
+
+function openModal(card) {
+  iconEl.textContent = card.icon;
+  titleEl.textContent = card.title;
+  titleEl.style.color = card.tc;
+  titleEl.style.textShadow = `0 0 20px ${card.tc}`;
+  bodyEl.textContent = card.text;
+
+  const c1 = card.color1 || '#a060ff';
+  const c2 = card.color2 || '#ff6098';
+  const ms = card.glow || 'rgba(160,96,255,0.4)';
+  box.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+  box.style.boxShadow = `0 0 60px 20px ${ms}`;
+  box.style.setProperty('--mc1', c1);
+  box.style.setProperty('--mc2', c2);
+
+  overlay.classList.add('open');
+}
+
+document.getElementById('modal-close').addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+// ── WELCOME SCREEN STARS ──
+const wStarsEl = document.getElementById('welcome-stars');
+for (let i = 0; i < 160; i++) {
+  const ws = document.createElement('div');
+  ws.className = 'w-star';
+  const sz = Math.random() * 2.2 + 0.4;
+  ws.style.cssText = `
+    width:${sz}px; height:${sz}px;
+    left:${Math.random()*100}%; top:${Math.random()*100}%;
+    --d:${(Math.random()*4+2).toFixed(1)}s;
+    --a1:${(Math.random()*0.2+0.05).toFixed(2)};
+    --a2:${(Math.random()*0.6+0.3).toFixed(2)};
+    animation-delay:${(Math.random()*5).toFixed(1)}s;
+  `;
+  wStarsEl.appendChild(ws);
+}
+
+// ── MÚSICA ──
+const music = document.getElementById('bg-music');
+const musicBtn = document.getElementById('music-btn');
+let musicStarted = false;
+
+function startMusic() {
+  music.volume = 0;
+  music.play().then(() => {
+    musicStarted = true;
+    // fade in
+    let vol = 0;
+    const fade = setInterval(() => {
+      vol = Math.min(vol + 0.02, 0.75);
+      music.volume = vol;
+      if (vol >= 0.75) clearInterval(fade);
+    }, 80);
+  }).catch(() => {});
+}
+
+musicBtn.addEventListener('click', () => {
+  if (music.paused) {
+    music.play();
+    musicBtn.textContent = '🎵';
+    musicBtn.classList.add('playing');
+  } else {
+    music.pause();
+    musicBtn.textContent = '🔇';
+    musicBtn.classList.remove('playing');
+  }
+});
+
+// ── WELCOME BUTTON ──
+document.getElementById('welcome-btn').addEventListener('click', () => {
+  const ws = document.getElementById('welcome-screen');
+  ws.classList.add('hidden');
+  setTimeout(() => { ws.style.display = 'none'; }, 950);
+
+  // mostrar botón música
+  setTimeout(() => {
+    musicBtn.classList.add('visible', 'playing');
+  }, 800);
+
+  // iniciar música
+  startMusic();
+});
+
+const emojis = ['✨','💫','⭐','🌸','💖','🌙','✦','·'];
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  p.style.cssText = `
+    left:${Math.random()*100}%;
+    bottom:${Math.random()*20-10}%;
+    --ps:${(Math.random()*10+8)}px;
+    --pd:${(Math.random()*8+6).toFixed(1)}s;
+    --pde:${(Math.random()*8).toFixed(1)}s;
+    --px:${(Math.random()*80-40).toFixed(0)}px;
+    --po:${(Math.random()*0.4+0.2).toFixed(2)};
+  `;
+  body.appendChild(p);
+}
+</script>
+</body>
+</html>
